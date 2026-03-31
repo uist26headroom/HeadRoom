@@ -1,0 +1,159 @@
+:root {
+  --bg: #0b1020;
+  --surface: #141b34;
+  --text: #e8ecff;
+  --muted: #afbadf;
+  --accent: #7aa2ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  width: min(1000px, 92%);
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+header {
+  margin-bottom: 2rem;
+}
+
+h1, h2 {
+  margin: 0 0 0.7rem;
+  line-height: 1.25;
+}
+
+h3 {
+  margin: 0 0 0.6rem;
+  line-height: 1.25;
+}
+
+p {
+  margin: 0.5rem 0 1rem;
+  color: var(--muted);
+}
+
+.links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+a.button {
+  background: var(--accent);
+  color: #09122e;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.6rem 0.95rem;
+  border-radius: 10px;
+}
+
+section {
+  background: var(--surface);
+  border: 1px solid rgba(122, 162, 255, 0.25);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.snippet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.snippet-card {
+  background: rgba(10, 15, 35, 0.45);
+  border: 1px solid rgba(122, 162, 255, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+video {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+  background: #000;
+}
+
+.small-live-video {
+  width: min(420px, 100%);
+  display: block;
+  margin: 0.7rem auto 0;
+}
+
+.snippet-card video {
+  margin-top: 0.2rem;
+}
+
+.live-panels {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.metric-panel {
+  background: rgba(10, 15, 35, 0.45);
+  border: 0.5px solid rgba(122, 162, 255, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.metric-panel canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 0.5px solid rgba(122, 162, 255, 0.18);
+  background: #0f1733;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.metric-row span {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.meter {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(175, 186, 223, 0.25);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7aa2ff, #7cf5d2);
+  transition: width 80ms linear;
+}
+
+@media (max-width: 980px) {
+  .snippet-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+small {
+  color: var(--muted);
+}

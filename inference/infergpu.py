@@ -350,13 +350,13 @@ if __name__ == "__main__":
     p.add_argument("--visual_ckpt", required=True)
     p.add_argument("--audio_ckpt", required=True)
     p.add_argument("--source", default="files", choices=["files", "picamera"])
-    p.add_argument("--frame_dir", default="/Users/dinithidissanayake/Documents/Phd/UIST/gaming_study2/Paper_video8_outputs/frames_10fps_strict")
-    p.add_argument("--wav", default="/Users/dinithidissanayake/Documents/Phd/UIST/gaming_study2/Paper_video8_outputs/Paper8.wav")
+    p.add_argument("--frame_dir", default="")
+    p.add_argument("--wav", default="")
     p.add_argument("--fps", type=int, default=10)
     p.add_argument("--max_steps", type=int, default=1999999)
     p.add_argument("--threshold", type=float, default=0.5)
     p.add_argument("--device", default="auto", choices=["auto", "cpu", "mps", "cuda"])
-    p.add_argument("--out_csv", default="/Users/dinithidissanayake/Documents/Phd/UIST/gaming_study2/Paper_video8_outputs/infer_results_videoaria.csv",
+    p.add_argument("--out_csv", default="",
                    help="Path to save results CSV")
     args = p.parse_args()
 

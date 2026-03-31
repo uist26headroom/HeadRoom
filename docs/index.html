@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HeadRoom — User Study Probes</title>
+  <meta name="description" content="User study probe videos for HeadRoom." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>HeadRoom: Lightweight, Edge-deployable Pipeline for Adaptive Notification Routing</h1>
+      <p>
+        This page is the companion website for our UIST 2026 submission. It first presents examples of the visual probes, followed by 15-second snippets from the videos used in our user study. 
+        We then show a qualitative example, recorded using Aria glasses, illustrating our model’s real-time predictions.
+      </p>
+      <div class="links">
+        <a class="button" href="https://github.com/uist26headroom/HeadRoom" target="_blank" rel="noopener noreferrer">Code Repository</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>User Study Probes Display (Audio Probe + Video Probe)</h2>
+      <p>
+        This video presents the two probe types used in our user study. 
+        First, you will hear the auditory probe as a beep sound, followed by the visual probe shown as a square.
+      </p>
+      <video controls preload="metadata">
+        <source src="media/User_study_probes.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </section>
+
+    <section>
+      <h2>Actual Video Snippets Used in the Study</h2>
+      <p>
+        The three clips below are the actual snippets shown to participants, in order: Video 1, Video 2, Video 3.
+      </p>
+
+      <div class="snippet-grid">
+        <article class="snippet-card">
+          <h3>Video 1</h3>
+          <video controls preload="metadata">
+            <source src="media/video1_trimmed.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </article>
+
+        <article class="snippet-card">
+          <h3>Video 2</h3>
+          <video controls preload="metadata">
+            <source src="media/video2_trimmed.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </article>
+
+        <article class="snippet-card">
+          <h3>Video 3</h3>
+          <video controls preload="metadata">
+            <source src="media/video3_trimmed.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Aria Live Video</h2>
+      <p>
+        This is an example of a live recording from Aria glasses, showing the video feed along with our model's real-time visual and audio availability predictions plotted below.
+      </p>
+      <video id="ariaLiveVideo" class="small-live-video" controls preload="metadata">
+        <source src="media/Aria_live_video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <div class="live-panels">
+        <article class="metric-panel">
+          <h3>Visual Availability (20-frame smooth)</h3>
+          <canvas id="visCanvas" width="920" height="120" aria-label="Visual availability plot"></canvas>
+          <div class="metric-row">
+            <span id="visValue">0.000</span>
+            <div class="meter"><div id="visFill" class="meter-fill"></div></div>
+          </div>
+        </article>
+
+        <article class="metric-panel">
+          <h3>Audio Availability (20-frame smooth)</h3>
+          <canvas id="audCanvas" width="920" height="120" aria-label="Audio availability plot"></canvas>
+          <div class="metric-row">
+            <span id="audValue">0.000</span>
+            <div class="meter"><div id="audFill" class="meter-fill"></div></div>
+          </div>
+        </article>
+      </div>
+      <p id="syncStatus"><small>Loading availability timeline…</small></p>
+    </section>
+
+    <p>
+      <small>
+        Replace the title/description text with your final paper wording if needed.
+      </small>
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      const video = document.getElementById("ariaLiveVideo");
+      const visValue = document.getElementById("visValue");
+      const audValue = document.getElementById("audValue");
+      const visFill = document.getElementById("visFill");
+      const audFill = document.getElementById("audFill");
+      const visCanvas = document.getElementById("visCanvas");
+      const audCanvas = document.getElementById("audCanvas");
+      const syncStatus = document.getElementById("syncStatus");
+
+      const fps = 10;
+      const smoothWindow = 20;
+
+      let visSeries = [];
+      let audSeries = [];
+
+      function clamp01(v) {
+        return Math.max(0, Math.min(1, v));
+      }
+
+      function movingAverage(values, windowSize) {
+        const result = new Array(values.length);
+        let running = 0;
+        for (let i = 0; i < values.length; i++) {
+          running += values[i];
+          if (i >= windowSize) {
+            running -= values[i - windowSize];
+          }
+          const denom = Math.min(i + 1, windowSize);
+          result[i] = running / denom;
+        }
+        return result;
+      }
+
+      function drawSeries(canvas, series, activeIndex, color) {
+        const ctx = canvas.getContext("2d");
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#0f1733";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = "rgba(173, 186, 219, 0.18)";
+        ctx.lineWidth = 1;
+        for (let i = 1; i < 4; i++) {
+          const y = (height / 4) * i;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        if (!series.length) {
+          return;
+        }
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < series.length; i++) {
+          const x = (i / Math.max(series.length - 1, 1)) * width;
+          const y = (1 - clamp01(series[i])) * (height - 8) + 4;
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+
+        const markerX = (activeIndex / Math.max(series.length - 1, 1)) * width;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(markerX, 0);
+        ctx.lineTo(markerX, height);
+        ctx.stroke();
+      }
+
+      function renderAt(index) {
+        if (!visSeries.length || !audSeries.length) {
+          return;
+        }
+        const safeIndex = Math.max(0, Math.min(index, visSeries.length - 1));
+        const vis = clamp01(visSeries[safeIndex]);
+        const aud = clamp01(audSeries[safeIndex]);
+
+        visValue.textContent = vis.toFixed(3);
+        audValue.textContent = aud.toFixed(3);
+        visFill.style.width = (vis * 100).toFixed(1) + "%";
+        audFill.style.width = (aud * 100).toFixed(1) + "%";
+
+        drawSeries(visCanvas, visSeries, safeIndex, "#8fb4ff");
+        drawSeries(audCanvas, audSeries, safeIndex, "#7cf5d2");
+      }
+
+      function currentIndexFromTime() {
+        return Math.floor(video.currentTime * fps);
+      }
+
+      function parseCsv(text) {
+        const lines = text.split(/\r?\n/).filter(Boolean);
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(",");
+          if (cols.length < 5) {
+            continue;
+          }
+          const vis = Number.parseFloat(cols[3]);
+          const aud = Number.parseFloat(cols[4]);
+          if (Number.isFinite(vis) && Number.isFinite(aud)) {
+            rows.push({ vis, aud });
+          }
+        }
+        return rows;
+      }
+
+      async function loadCsvText() {
+        const candidates = [
+          "media/infer_results_videoaria%20copy.csv",
+          "media/infer_results_videoaria copy.csv",
+          "../videos/infer_results_videoaria%20copy.csv"
+        ];
+
+        let lastError = null;
+        for (const path of candidates) {
+          try {
+            const res = await fetch(path, { cache: "no-store" });
+            if (!res.ok) {
+              throw new Error("HTTP " + res.status);
+            }
+            const text = await res.text();
+            if (!text || !text.trim()) {
+              throw new Error("Empty file");
+            }
+            return text;
+          } catch (err) {
+            lastError = err;
+          }
+        }
+        throw lastError || new Error("CSV load failed");
+      }
+
+      loadCsvText()
+        .then((text) => {
+          const rows = parseCsv(text);
+          if (!rows.length) {
+            throw new Error("CSV has no usable rows");
+          }
+          visSeries = movingAverage(rows.map((r) => r.vis), smoothWindow);
+          audSeries = movingAverage(rows.map((r) => r.aud), smoothWindow);
+
+          syncStatus.innerHTML = "<small>Panels synced to video playback using 20-frame moving average.</small>";
+          renderAt(0);
+        })
+        .catch((err) => {
+          const protocolHint = window.location.protocol === "file:"
+            ? " Open via GitHub Pages or a local web server (not file://)."
+            : "";
+          const detail = err && err.message ? " Details: " + err.message + "." : "";
+          syncStatus.innerHTML = "<small>Could not load availability CSV from docs/media." + detail + protocolHint + "</small>";
+        });
+
+      video.addEventListener("timeupdate", () => {
+        renderAt(currentIndexFromTime());
+      });
+
+      video.addEventListener("seeked", () => {
+        renderAt(currentIndexFromTime());
+      });
+
+      video.addEventListener("loadedmetadata", () => {
+        renderAt(0);
+      });
+    })();
+  </script>
+</body>
+</html>

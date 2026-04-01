@@ -1,6 +1,8 @@
 # HeadRoom 
 
 HeadRoom predicts **visual** and **audio** channel availability from egocentric data (Aria-style frames + audio), then routes to the channel with more headroom.
+Our companion website:
+- [https://uist26headroom.github.io/HeadRoom/](https://uist26headroom.github.io/HeadRoom/)
 
 ## Project structure
 
@@ -89,31 +91,5 @@ python inference/infercpu.py \
   --out_csv /path/to/infer_results.csv
 ```
 
-## GitHub Pages (User Study Probes)
-
-A static page is provided at `docs/index.html` with:
-- Paper title header
-- Code repository link
-- Ordered user study probe videos: `Video 1`, `Video 2`, `Video 3`
-
-Video files currently used by the page:
-- `videos/video1_trimmed.mp4`
-- `videos/video2_trimmed.mp4`
-- `videos/video3_trimmed.mp4`
-
-To deploy on GitHub Pages:
-
-1. Push this repo to GitHub.
-2. Open **Settings → Pages**.
-3. Under **Build and deployment**, choose:
-   - **Source**: `Deploy from a branch`
-   - **Branch**: `main`
-   - **Folder**: `/docs`
-4. Save, then wait for Pages to publish.
-
-Your site URL will be:
-- `https://uist26headroom.github.io/HeadRoom/`
-
-To update page text (paper title/probe descriptions), edit:
-- `docs/index.html`
-
+### Unity
+For our standalone headset deplyment we converted the MobileNetV3 backbone, Visual MLP and Audio MLP to ONNX and they are available at unity/assets/models.
